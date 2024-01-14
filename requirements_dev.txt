@@ -1,0 +1,7 @@
+#
+ansible==2.15
+ansible-navigator
+pre-commit
+antsibull-changelog
+#
+awxkit

@@ -1,0 +1,69 @@
+---
+- name: Create Storage for AWX
+  ansible.builtin.file:
+    dest: "{{ item }}"
+    state: directory
+    mode: '0755'
+  with_items:
+    - /pg_data
+  tags:
+    - kubecluster
+    - volumes
+
+- name: Create cluster
+  tags:
+    - kubecluster
+  block:
+    - name: Create cluster
+      ansible.builtin.command:
+        argv: "{{ _k3d_cluster_command + _k3d_cluster_volumes }}"
+      vars:
+        _k3d_cluster_command:
+          - /usr/local/bin/k3d
+          - cluster
+          - create
+          - awx
+          - --wait
+          - --api-port
+          - "{{ k3d_api_port | default('127.0.0.1:6550') }}"
+          - --port
+          - 443:443@loadbalancer
+          - --registry-create
+          - k3d-registry:127.0.0.1:5000
+        _k3d_cluster_volumes:
+          - --volume
+          - /pg_data:/pg_data@server:*
+
+      register: k3dcreatecluster
+
+  rescue:
+    - name: Debug
+      ansible.builtin.debug:
+        var: k3dcreatecluster.stderr_lines
+    - name: Fail
+      ansible.builtin.fail:
+
+  always:
+    - name: Debug
+      ansible.builtin.debug:
+        var: k3dcreatecluster.stdout_lines
+
+- name: Show kubectl
+  tags:
+    - kubectlinfo
+  block:
+    - name: Show cluster
+      ansible.builtin.command: kubectl cluster-info
+      register: showcluster
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: showcluster
+
+    - name: Show pods
+      ansible.builtin.command: kubectl get pod --all-namespaces
+      register: showpods
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: showpods

@@ -1,0 +1,10 @@
+---
+use_default_rules: true
+
+skip_list:
+  - no-changed-when
+  - var-naming
+
+exclude_paths:
+  - .github
+  - changelogs

@@ -1,0 +1,77 @@
+---
+# local provisioner storage class for postgresql as it uses pvc
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: psql-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+# pv definition for the postgresql volume to point to host volume exposed to k3d via cluster create commandline
+# please note that /pg_data below is inside the k3d docker container, not on host OS filesystem!
+# this will allow postgresql data directory will be kept outside docker/k3d/k8s
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgresql-pgdata
+spec:
+  capacity:
+    storage: 8Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: psql-storage
+  local:
+    path: /pg_data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: # adjust if choosing different k3d cluster name. node affinity is required.
+          - k3d-awx-server-0
+---
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: awx-prod
+spec:
+  service_type: ClusterIP
+  postgres_storage_class: psql-storage # pvc class to use local-storage pv created above
+  # CA
+  bundle_cacert_secret: awx-custom-certs
+
+  hostname: "{{ ansible_awx_k3d_awx_public_domain }}"
+
+  extra_settings:
+    {{ ansible_awx_k3d_awx_extra_settings | to_yaml(indent=2) }}
+
+---
+# expose the awx on local router, which is available via https on host port 8443
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: awx-prod
+  annotations:
+    # ingress.kubernetes.io/ssl-redirect: "true"
+
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  # tls is only for tls with let's encrypt
+  tls:
+    - secretName: rancher-logo-k3s-ruan-dev-tls
+      hosts:
+        - "{{ ansible_awx_k3d_awx_public_domain }}"
+  rules:
+  - host: "{{ ansible_awx_k3d_awx_public_domain }}"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: awx-prod-service
+            port:
+              number: 80

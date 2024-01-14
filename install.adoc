@@ -1,0 +1,71 @@
+= k3d
+
+Install Software
+```
+cd install_awx
+~/venv/ansible/bin/ansible-playbook install_k3d.yml
+```
+
+Configure k3d Cluster
+```
+cd install_awx
+~/venv/ansible/bin/ansible-playbook configure_cluster.yml -e k3d_api_port="192.168.56.15:6550"
+```
+
+= AWX
+
+Operator project: https://github.com/ansible/awx-operator
+
+Deploy AWX
+```
+cd install_awx
+~/venv/ansible/bin/ansible-playbook deploy_awx.yml -e public_domain=awx-192.168.56.15.nip.io
+```
+
+k3d-Credentials in /root/.kubeconfig/config
+
+# AWX
+
+Webseite: https://awx-192.168.56.15.nip.io
+
+Das initiale Paßword befindet sich im k3d:
+
+Hilfe: https://kubernetes.io/docs/tasks/configmap-secret/managing-secret-using-kubectl/
+
+als root:
+```
+kubectl describe secret awx-prod-admin-password
+```
+
+Problem mit Paßword:
+
+https://github.com/ansible/awx-operator/issues/123
+
+OAUTH-Token
+
+```
+export TOWER_HOST=https://awx-192.168.56.15.nip.io
+
+eval $(TOWER_USERNAME=admin2 \
+TOWER_PASSWORD=admin2 \
+awx login -k -f human)
+
+awx config
+```
+
+export TOWER_HOST=https://awx-192.168.56.15.nip.io
+export TOWER_OAUTH_TOKEN=beIz9IX2W8ngr1K8eIsByvXyVEeZSF
+
+
+## AWX Organzation import
+
+```
+cd awx
+~/venv/ansible/bin/ansible-playbook awx_org_import.yml
+```
+
+## AWX Export
+
+```
+~/venv/ansible/bin/ansible-playbook awx_org_export.yml
+```

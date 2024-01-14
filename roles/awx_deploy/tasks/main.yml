@@ -1,0 +1,44 @@
+---
+- name: Set namespace to awx
+  tags:
+    - kubenamespace
+  ansible.builtin.command: kubectl config set-context --current --namespace=awx
+
+- name: Create deployment directory
+  ansible.builtin.file:
+    dest: "{{ ansible_awx_k3d_kustomize_target }}"
+    state: directory
+    mode: '0755'
+
+- name: Create kustomize configuration
+  ansible.builtin.template:
+    src: kustomization.yaml.j2
+    dest: "{{ ansible_awx_k3d_kustomize_target }}/kustomization.yaml"
+    backup: true
+    mode: '0644'
+
+- name: AWX-instance configuration
+  ansible.builtin.template:
+    src: awx-instance.yml.j2
+    dest: "{{ ansible_awx_k3d_kustomize_target }}/awx-instance.yml"
+    backup: true
+    mode: '0644'
+
+- name: Deploy awx
+  block:
+    - name: Deploy with kustomize
+      ansible.builtin.shell: |
+        set -eu
+        set -o pipefail
+        /usr/local/bin/kubectl config set-context --current --namespace=awx
+        /usr/local/bin/kubectl kustomize . | tee - | /usr/local/bin/kubectl apply -f -
+      args:
+        chdir: "{{ ansible_awx_k3d_kustomize_target }}"
+        executable: /bin/bash
+
+      register: kustomize
+
+  always:
+    - name: Debug
+      ansible.builtin.debug:
+        var: kustomize.stdout_lines

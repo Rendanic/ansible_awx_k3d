@@ -1,0 +1,7 @@
+---
+- name: Install k3d
+  hosts: localhost
+  become: true
+  become_user: root
+  roles:
+    - k3d_install

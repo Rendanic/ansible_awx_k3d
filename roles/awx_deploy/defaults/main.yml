@@ -1,0 +1,13 @@
+---
+ansible_awx_k3d_awx_operator_version: 2.7.1
+
+ansible_awx_k3d_kustomize_target: /root/aws-setup
+
+ansible_awx_k3d_awx_public_domain: >-
+  awx-{{ ansible_all_ipv4_addresses | first | replace('.', '-') }}.nip.io"
+
+
+# TOWER_URL_BASE is mandatory for SAML
+ansible_awx_k3d_awx_extra_settings:
+  - setting: TOWER_URL_BASE
+    value: '"https://{{ ansible_awx_k3d_awx_public_domain }}"'

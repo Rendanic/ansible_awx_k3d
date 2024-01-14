@@ -1,0 +1,20 @@
+galaxy_info:
+  author: Thorsten Bruhns
+  description: Install k3d on target machine
+  company: private Organization
+
+  license: GPL-3.0-only
+
+  min_ansible_version: "2.15.0"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy  # 22.04
+
+  galaxy_tags:
+    - infrastructure
+    - k3d
+    - awx
+
+dependencies: []

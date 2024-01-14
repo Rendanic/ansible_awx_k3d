@@ -1,0 +1,14 @@
+---
+namespace: rendanic
+name: ansible_awx_k3d
+description: Install k3d and AWX on Ubuntu 22.04
+version: 1.0.0
+repository: https://github.com/Rendanic/ansible_awx_k3d
+readme: README.md
+authors:
+  - Thorsten Bruhns
+license:
+  - "GPL-3.0-only"
+tags:
+  - infrastructure
+  - awx

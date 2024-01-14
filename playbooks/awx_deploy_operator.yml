@@ -1,0 +1,7 @@
+---
+- name: Deploy AWX
+  hosts: localhost
+  become: true
+  become_user: root
+  roles:
+    - rendanic.ansible_awx_k3d.awx_deploy
