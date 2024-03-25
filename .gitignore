@@ -2,6 +2,8 @@
 .vagrant
 *.pub
 
+rendanic-ansible_awx_k3d-*.tar.gz
+
 # ignore for ansible-navigator
 playbooks/collections
 ansible-navigator.log

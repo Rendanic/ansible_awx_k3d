@@ -1,15 +1,28 @@
 = k3d
 
+Python venv
+```
+sudo apt install -y python3.11-venv python3-pip
+
+python3.11 -m venv ~/venv/ansible/
+~/venv/ansible/bin/python -m pip install --upgrade pip
+
+~/venv/ansible/bin/pip install -r requirements_dev.txt
+```
+
 Install Software
 ```
 cd install_awx
-~/venv/ansible/bin/ansible-playbook install_k3d.yml
+
+ansible-galaxy collection build --force && ansible-galaxy collection install --force rendanic-ansible_awx_k3d-*.tar.gz 
+
+~/venv/ansible/bin/ansible-playbook playbooks/k3d_install.yml
 ```
 
 Configure k3d Cluster
 ```
 cd install_awx
-~/venv/ansible/bin/ansible-playbook configure_cluster.yml -e k3d_api_port="192.168.56.15:6550"
+~/venv/ansible/bin/ansible-playbook playbooks/k3d_configure_cluster.yml -e k3d_api_port="192.168.56.15:6550"
 ```
 
 = AWX

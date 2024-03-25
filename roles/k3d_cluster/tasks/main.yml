@@ -1,4 +1,14 @@
 ---
+- name: Assert IP for API
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - _k3d_api_ip in ansible_all_ipv4_addresses
+    fail_msg: >-
+      IP of k3d_api_port is not a local IP.
+  vars:
+    _k3d_api_ip: "{{ k3d_api_port | split(':') | first}}"
+
 - name: Create Storage for AWX
   ansible.builtin.file:
     dest: "{{ item }}"

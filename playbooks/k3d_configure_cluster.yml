@@ -4,4 +4,4 @@
   become: true
   become_user: root
   roles:
-    - k3d_cluster
+    - rendanic.ansible_awx_k3d.k3d_cluster

@@ -3,5 +3,8 @@
   hosts: localhost
   become: true
   become_user: root
+  vars:
+    # ansible_awx_k3d_awx_operator_version: 2.13.1
+    ansible_awx_k3d_awx_operator_version: 2.7.1
   roles:
     - rendanic.ansible_awx_k3d.awx_deploy

@@ -1,6 +1,4 @@
 ---
-ansible_awx_k3d_awx_operator_version: 2.7.1
-
 ansible_awx_k3d_kustomize_target: /root/aws-setup
 
 ansible_awx_k3d_awx_public_domain: >-

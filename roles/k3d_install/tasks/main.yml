@@ -15,7 +15,7 @@
       - net-tools
       - curl
       - wget
-    state: installed
+    state: present
 
 - name: Install k3d
   ansible.builtin.script: |

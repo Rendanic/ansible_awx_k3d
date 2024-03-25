@@ -1,4 +1,25 @@
 ---
+- name: Assert AWX Operator version
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - ansible_awx_k3d_awx_operator_version is defined
+      - ansible_awx_k3d_awx_operator_version | length > 0
+
+- name: Show IP of public_domain
+  ansible.builtin.debug:
+    msg:
+      - "public_domain: {{ public_domain }}"
+      - "IP:            {{ lookup('community.general.dig', public_domain + '.') }}"
+  become: false
+
+- name: Check if IP from public_domain is in ansible_all_ipv4_addresses
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - lookup('community.general.dig', public_domain + '.') in ansible_all_ipv4_addresses
+  become: false
+
 - name: Set namespace to awx
   tags:
     - kubenamespace
@@ -41,4 +62,4 @@
   always:
     - name: Debug
       ansible.builtin.debug:
-        var: kustomize.stdout_lines
+        var: kustomize
